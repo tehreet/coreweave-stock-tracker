@@ -59,9 +59,13 @@ async function createServer() {
     }
   });
 
-  app.listen(PORT, () => {
-    console.log(`Server listening at http://localhost:${PORT}`);
-  });
+  if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+      console.log(`Server listening at http://localhost:${PORT}`);
+    });
+  }
+
+  return app; // Export the app instance for Vercel
 }
 
-createServer();
+export default createServer; // Export the function for Vercel's build process
