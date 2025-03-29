@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <h1>TradingView Widget</h1>
-    <p v-if="!isMounted">Loading Chart...</p>
+    <!-- TradingView Widget Placeholder -->
+    <!-- Text elements removed -->
     <TradingViewWidget v-if="isMounted" />
   </div>
 </template>
@@ -20,10 +20,6 @@ onMounted(() => {
 
 <!-- Scoped styles for this component -->
 <style scoped>
-h1 {
-  color: #34495e;
-  text-align: center;
-}
 div#app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -31,9 +27,6 @@ div#app {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
-p {
-  text-align: center;
 }
 </style>
 
@@ -48,6 +41,7 @@ body {
 
   color: #d1d4dc; /* Light text for contrast */
   margin: 0;
+  padding-top: 20px; /* Add some space above the widget */
   font-family: Avenir, Helvetica, Arial, sans-serif; /* Consistent font */
 }
 </style>
