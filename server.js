@@ -98,13 +98,20 @@ async function createServer() {
     }
   });
 
-  if (process.env.VERCEL !== '1') {
-    app.listen(PORT, () => {
-      console.log(`Server listening at http://localhost:${PORT}`);
-    });
-  }
-
-  return app; // Export the app instance for Vercel
+  return app; // Return the app instance from createServer
 }
 
-export default createServer; // Export the function for Vercel's build process
+// Initialize the app instance once
+let appInstancePromise = createServer();
+
+// Export a handler function for Vercel
+export default async (req, res) => {
+  try {
+    const app = await appInstancePromise; // Wait for app initialization
+    // Pass the request to the initialized Express app
+    return app(req, res);
+  } catch (error) {
+    console.error("[Vercel Handler Error] Failed to initialize or handle request:", error);
+    res.status(500).send("Internal Server Error initializing handler.");
+  }
+};
