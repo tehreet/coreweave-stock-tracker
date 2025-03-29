@@ -18,6 +18,9 @@
     }
   ],
   "routes": [
+    { "src": "/client-bundle.js", "dest": "/dist/client-bundle.js" },
+    { "src": "/client-bundle.css", "dest": "/dist/client-bundle.css" },
+    { "src": "/assets/(.*)", "dest": "/dist/assets/$1" },
     { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
