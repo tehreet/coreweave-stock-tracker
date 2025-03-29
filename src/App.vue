@@ -18,6 +18,7 @@ onMounted(() => {
 });
 </script>
 
+<!-- Scoped styles for this component -->
 <style scoped>
 h1 {
   color: #34495e;
@@ -33,5 +34,15 @@ div#app {
 }
 p {
   text-align: center;
+}
+</style>
+
+<!-- Global styles (NOT scoped) -->
+<style>
+body {
+  background-color: #131722; /* Dark background */
+  color: #d1d4dc; /* Light text for contrast */
+  margin: 0;
+  font-family: Avenir, Helvetica, Arial, sans-serif; /* Consistent font */
 }
 </style>
