@@ -1,14 +1,8 @@
 <template>
   <div id="app">
-    <h1>SSR Test</h1>
-    <!-- Client-side only section -->
-    <div v-if="isMounted">
-        <h2>Client Mounted</h2>
-        <TradingViewWidget />
-    </div>
-    <div v-else>
-        <p>Waiting for client mount...</p>
-    </div>
+    <h1>CoreWeave Stock Tracker</h1>
+    <p v-if="!isMounted">Loading Chart...</p>
+    <TradingViewWidget v-if="isMounted" />
   </div>
 </template>
 
@@ -19,29 +13,25 @@ import TradingViewWidget from './components/TradingViewWidget.vue';
 const isMounted = ref(false);
 
 onMounted(() => {
+  // This ensures TradingViewWidget only renders client-side
   isMounted.value = true;
 });
 </script>
 
-<style>
-body {
-  font-family: sans-serif;
-  margin: 0;
-  background-color: #131722;
-  color: #d1d4dc;
-}
-#app {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-h1, h2 {
+<style scoped>
+h1 {
+  color: #34495e;
   text-align: center;
-  color: #b2b5be;
-  margin-bottom: 30px;
+}
+div#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
 }
 p {
-    text-align: center;
-    font-style: italic;
+  text-align: center;
 }
 </style>

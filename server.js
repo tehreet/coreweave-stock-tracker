@@ -1,117 +1,75 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from 'fs';
+import path from 'path';
 import express from 'express';
+import { fileURLToPath } from 'url';
 import { renderToString } from '@vue/server-renderer';
 
 // Helper to get __dirname in ES module scope
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const isProduction = process.env.NODE_ENV === 'production';
-const PORT = process.env.PORT || 5173; // Use environment port or default
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function createServer() {
   const app = express();
 
-  // Serve static files from dist (built client assets)
-  // Use strong caching in production
-  app.use('/', express.static(path.resolve(__dirname, 'dist'), {
-    index: false, // Don't serve index.html directly from static
-    maxAge: isProduction ? '1y' : 0
-  }));
+  // Serve static files from 'dist' - Handled by Vercel's static-build
+  // app.use(express.static(path.resolve(__dirname, 'dist'), { index: false }));
 
   // Serve static files from public
-  app.use('/', express.static(path.resolve(__dirname, 'public'), {
-    index: false
-  }));
+  // app.use('/', express.static(path.resolve(__dirname, 'public'), {
+  //   index: false
+  // }));
 
-  // Server-Side Rendering
-  app.use('*', async (req, res) => {
+  // SSR handler for all routes
+  app.get('/*', async (req, res) => {
+    const url = req.originalUrl;
+
     try {
-      const url = req.originalUrl;
-      console.log(`[Vercel SSR] Request received for: ${url}`); // Log 1
-
       // 1. Read the HTML template
-      let template;
-      try {
-        template = fs.readFileSync(
-          path.resolve(__dirname, 'index.html'),
-          'utf-8'
-        );
-        console.log('[Vercel SSR] Read index.html template.'); // Log 2
-      } catch (readError) {
-        console.error('[Vercel SSR] Error reading index.html:', readError);
-        return res.status(500).end('Internal Server Error: Cannot read template');
+      const templatePath = path.resolve(__dirname, 'index.html');
+      let template = fs.readFileSync(templatePath, 'utf-8');
+
+      // 2. Load the server entry module (adjust path if needed)
+      // Using a dynamic import that Vercel can handle
+      const serverEntryPath = path.resolve(__dirname, './dist/server-bundle.js');
+      const serverEntry = await import(serverEntryPath /* @vite-ignore */); // Vercel needs the path hint
+
+      if (typeof serverEntry.createApp !== 'function') {
+        throw new Error('Invalid server entry: createApp function not found.');
       }
 
-      // 2. Load the server entry module
-      let createApp;
-      try {
-        console.log('[Vercel SSR] Attempting to import server bundle...'); // Log 3
-        const serverEntry = await import('./dist/server-bundle.js');
-        createApp = serverEntry.createApp;
-        console.log('[Vercel SSR] Imported server bundle successfully.'); // Log 4
-        if (typeof createApp !== 'function') {
-          throw new Error('createApp is not a function in server bundle');
-        }
-      } catch (importError) {
-        console.error('[Vercel SSR] Error importing server bundle:', importError);
-        return res.status(500).end('Internal Server Error: Cannot load server entry');
-      }
+      // 3. Create Vue app instance
+      const appInstance = serverEntry.createApp({ url }); // Pass url context if needed
 
-      // 3. Create Vue app instance and render it to string
-      let appInstance;
-      try {
-        console.log('[Vercel SSR] Creating Vue app instance...'); // Log 5
-        appInstance = createApp(); // Pass context if needed (e.g., URL)
-        console.log('[Vercel SSR] Created Vue app instance.'); // Log 6
-      } catch (createAppError) {
-        console.error('[Vercel SSR] Error creating Vue app instance:', createAppError);
-        return res.status(500).end('Internal Server Error: Cannot create app');
-      }
+      // 4. Render the app instance to string
+      const appHtml = await renderToString(appInstance);
 
-      let appHtml;
-      try {
-        console.log('[Vercel SSR] Rendering Vue app to string...'); // Log 7
-        appHtml = await renderToString(appInstance);
-        console.log('[Vercel SSR] Rendered Vue app to string.'); // Log 8
-      } catch (renderError) {
-        console.error('[Vercel SSR] Error rendering Vue app:', renderError);
-        // Note: We might still try to send a response even if rendering fails partially
-        // or handle differently depending on the error.
-        // For timeout issues, this block might not even be reached if renderToString hangs.
-        return res.status(500).end('Internal Server Error: Rendering failed');
-      }
-
-      // 4. Inject the app-rendered HTML into the template
+      // 5. Inject the rendered app HTML into the template
       const html = template.replace(`<!--vue-ssr-app-->`, appHtml);
-      console.log('[Vercel SSR] Injected HTML into template.'); // Log 9
 
-      // 5. Send the rendered HTML back.
+      // 6. Send the final HTML
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
-      console.log('[Vercel SSR] Response sent.'); // Log 10
-    } catch (e) {
-      // This is a general catch block, specific errors handled above
-      console.error('[Vercel SSR] General catch block error:', e);
-      // Avoid using vite?.ssrFixStacktrace(e) in production/Vercel
-      res.status(500).end(e.message || 'Internal Server Error');
+
+    } catch (error) {
+      // Log the error and send a 500 response
+      console.error(`[SSR Error] Failed for ${url}:`, error);
+      // Avoid sending detailed error messages to the client in production
+      res.status(500).send('Internal Server Error');
     }
   });
 
-  return app; // Return the app instance from createServer
+  return app; // Return the app instance
 }
 
-// Initialize the app instance once
+// Initialize the app instance once (improves cold start performance)
 let appInstancePromise = createServer();
 
-// Export a handler function for Vercel
+// Export a handler function compatible with Vercel
 export default async (req, res) => {
   try {
-    const app = await appInstancePromise; // Wait for app initialization
-    // Pass the request to the initialized Express app
-    return app(req, res);
+    const app = await appInstancePromise; // Reuse initialized app
+    return app(req, res); // Pass request to the Express app
   } catch (error) {
-    console.error("[Vercel Handler Error] Failed to initialize or handle request:", error);
-    res.status(500).send("Internal Server Error initializing handler.");
+    console.error("[Vercel Handler Init Error]:", error);
+    res.status(500).send("Failed to initialize server handler.");
   }
 };
