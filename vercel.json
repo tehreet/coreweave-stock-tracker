@@ -2,22 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/client/assets/*",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist/client" }
     },
     {
       "src": "server.js",
       "use": "@vercel/node",
-      "config": { "includeFiles": ["dist/**", "index.html"] }
+      "config": {
+        "includeFiles": ["dist/**", "index.html"],
+        "buildCommand": "npm run build"
+      }
     }
   ],
   "routes": [
     { "src": "/assets/(.*)", "dest": "/dist/client/assets/$1" },
-    { "src": "/(.*\\.(ico|png|jpg|jpeg|gif|svg|css|js))$", "dest": "/public/$1" },
     { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
