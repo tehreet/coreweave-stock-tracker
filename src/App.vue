@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1>CoreWeave Stock Tracker</h1>
+    <h1>TradingView Widget</h1>
     <p v-if="!isMounted">Loading Chart...</p>
     <TradingViewWidget v-if="isMounted" />
   </div>
@@ -41,6 +41,11 @@ p {
 <style>
 body {
   background-color: #131722; /* Dark background */
+  /* Simple repeating cow emoji background using SVG data URI */
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><text x='0' y='35' font-size='30'>🐄</text></svg>");
+  background-repeat: repeat;
+  background-size: 50px 50px; /* Adjust size as needed */
+
   color: #d1d4dc; /* Light text for contrast */
   margin: 0;
   font-family: Avenir, Helvetica, Arial, sans-serif; /* Consistent font */
