@@ -23,16 +23,16 @@ function TradingViewWidget() {
           if (!document.getElementById('tradingview_chart_container')?.hasChildNodes()) {
             new (window as any).TradingView.widget({
               autosize: true,
-              symbol: "NASDAQ:CRWV", // Using NASDAQ:CRWV - adjust if listed elsewhere
-              interval: "1", // Changed from "D" to "1" for 1 minute interval
+              symbol: "NASDAQ:CRWV", 
+              interval: "1", 
               timezone: "Etc/UTC",
-              theme: "dark", // Dark theme for the widget
-              style: "1", // Bar style
+              theme: "dark", 
+              style: "1", 
               locale: "en",
               enable_publishing: false,
-              hide_side_toolbar: false, // Show drawing tools etc.
+              hide_side_toolbar: false, 
               allow_symbol_change: true,
-              container_id: "tradingview_chart_container" // Match the div id
+              container_id: "tradingview_chart_container" 
             });
           }
         }
