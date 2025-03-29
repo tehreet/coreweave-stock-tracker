@@ -24,7 +24,7 @@ function TradingViewWidget() {
             new (window as any).TradingView.widget({
               autosize: true,
               symbol: "NASDAQ:CRWV", // Using NASDAQ:CRWV - adjust if listed elsewhere
-              interval: "D", // Daily interval
+              interval: "1", // Changed from "D" to "1" for 1 minute interval
               timezone: "Etc/UTC",
               theme: "dark", // Dark theme for the widget
               style: "1", // Bar style
