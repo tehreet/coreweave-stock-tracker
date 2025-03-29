@@ -10,8 +10,10 @@
       "src": "server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["dist/**", "index.html"],
-        "buildCommand": "npm run build"
+        "includeFiles": [
+          "dist/server-bundle.js", 
+          "index.html"             
+        ]
       }
     }
   ],
