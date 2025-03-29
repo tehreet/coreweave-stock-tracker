@@ -1,7 +1,8 @@
 <template>
   <div id="app">
+    <!-- Loading indicator shown during SSR and before client mount -->
+    <p v-if="!isMounted" class="loading-text">Loading Chart...</p>
     <!-- TradingView Widget Placeholder -->
-    <!-- Text elements removed -->
     <TradingViewWidget v-if="isMounted" />
   </div>
 </template>
@@ -27,6 +28,15 @@ div#app {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-text {
+  color: #d1d4dc; /* Match body text color */
+  font-size: 1.2em;
+  margin-top: 50px; /* Space it down a bit */
 }
 </style>
 
