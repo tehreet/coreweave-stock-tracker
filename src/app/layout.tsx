@@ -6,8 +6,8 @@ import { Analytics } from '@vercel/analytics/react';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CoreWeave Stock Tracker',
-  description: 'Track CoreWeave ($CRWV) stock price in real-time',
+  title: 'NVIDIA Stock Tracker',
+  description: 'Track NVIDIA ($NVDA) stock price in real-time',
 };
 
 export default function RootLayout({
