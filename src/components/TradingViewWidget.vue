@@ -15,7 +15,7 @@ onMounted(() => {
       widgetInstance = new TradingView.widget({
         autosize: true,
         symbol: "CRWV", 
-        interval: "D",
+        interval: "1S",
         timezone: "Etc/UTC",
         theme: "dark",
         style: "1",
