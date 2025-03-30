@@ -31,7 +31,7 @@ async function createServer() {
       // 2. Load the server entry module (adjust path if needed)
       // Using a dynamic import that Vercel can handle
       const serverEntryPath = path.resolve(__dirname, './dist/server-bundle.js');
-      const serverEntry = await import(serverEntryPath /* @vite-ignore */); // Vercel needs the path hint
+      const serverEntry = await import(serverEntryPath);
 
       if (typeof serverEntry.createApp !== 'function') {
         throw new Error('Invalid server entry: createApp function not found.');
