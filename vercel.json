@@ -10,7 +10,7 @@
       "src": "dist/server-bundle.js", 
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["dist/index.html"]
+        "includeFiles": ["index.html"]
       }
     }
   ],
