@@ -10,7 +10,7 @@
     "build:server": "rollup -c --environment SERVER,NODE_ENV:production",
     "build": "npm run build:client && npm run build:server",
     "preview": "serve dist",
-    "start": "node server.js"
+    "start": "node dist/server-bundle.js"
   },
   "keywords": [
     "vue",
@@ -30,9 +30,14 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
     "@rollup/plugin-terser": "^0.4.4",
+    "@tailwindcss/postcss": "^4.0.17",
     "@vitejs/plugin-vue": "^5.0.5",
+    "autoprefixer": "^10.4.21",
     "postcss": "^8.4.38",
     "rollup": "^4.18.0",
-    "rollup-plugin-css-only": "^4.5.2"
+    "rollup-plugin-css-only": "^4.5.2",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-vue": "^6.0.0",
+    "tailwindcss": "^4.0.17"
   }
 }

@@ -1,22 +1,19 @@
 <template>
   <div id="app">
-    <!-- Loading indicator shown during SSR and before client mount -->
-    <p v-if="!isMounted" class="loading-text">Loading Chart...</p>
-    <!-- TradingView Widget Placeholder -->
-    <TradingViewWidget v-if="isMounted" />
+    <ClientOnly>
+      <!-- Content that requires the browser -->
+      <TradingViewWidget />
+      
+      <!-- Optional: Placeholder content shown during SSR -->
+      <template #placeholder>
+        <p class="loading-text">Loading Chart...</p>
+      </template>
+    </ClientOnly>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import TradingViewWidget from './components/TradingViewWidget.vue';
-
-const isMounted = ref(false);
-
-onMounted(() => {
-  // This ensures TradingViewWidget only renders client-side
-  isMounted.value = true;
-});
 </script>
 
 <!-- Scoped styles for this component -->

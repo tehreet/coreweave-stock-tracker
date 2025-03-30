@@ -1,72 +1,81 @@
 import express from 'express';
 import { createSSRApp } from 'vue';
 import { renderToString } from '@vue/server-renderer';
+import App from './App.vue'; 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Import your Vue components
-import App from './App.vue'; // Main App shell if needed
-import HelloWorld from './HelloWorld.vue'; // Example component
-
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(__filename); 
 
 const server = express();
 
-// Middleware to serve static files from 'dist' (for client bundle, css, assets)
-// Note: Vercel might handle this automatically via static-build output dir,
-// but having it here ensures local dev works and provides clarity.
-server.use(express.static(path.resolve(__dirname, '../dist'), { index: false }));
+const distPath = path.resolve(__dirname, '.'); 
+console.log(`Serving static files from: ${distPath}`);
 
-// Function to render Vue component with props
-async function renderVueComponent(component, props = {}) {
-  const app = createSSRApp(component, props);
-  return await renderToString(app);
-}
+server.get('/client-bundle.js', (req, res) => {
+  const filePath = path.join(distPath, 'client-bundle.js');
+  console.log(`Request for static file: ${req.path} -> ${filePath}`);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error(`Error sending file ${filePath}:`, err);
+      res.status(404).send('Static file not found');
+    }
+  });
+});
+server.get('/client-bundle.css', (req, res) => {
+  const filePath = path.join(distPath, 'client-bundle.css');
+  console.log(`Request for static file: ${req.path} -> ${filePath}`);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error(`Error sending file ${filePath}:`, err);
+      res.status(404).send('Static file not found');
+    }
+  });
+});
 
-// Example route rendering HelloWorld component
-server.get('/hello-world', async (req, res) => {
+server.get('/hello-world', (req, res) => {
+  console.log('Handling /hello-world route');
+  res.send('Hello from the server!');
+});
+
+server.get('*', async (req, res) => {
+  console.log(`Handling SSR for path: ${req.path}`);
+  if (req.path.startsWith('/client-bundle')) {
+    console.log('Skipping SSR for static asset path.')
+    return res.status(404).send('Not found (handled by specific static routes)');
+  }
+
+  const app = createSSRApp(App);
+
   try {
-    const message = "Message from Server!"; // Example prop
-    const appHtml = await renderVueComponent(HelloWorld, { message });
+    console.log('Starting renderToString...');
+    const appContent = await renderToString(app);
+    console.log('renderToString completed.');
 
-    // Read the HTML template (you might want to cache this)
-    const templatePath = path.resolve(__dirname, '../index.html');
-    let template = fs.readFileSync(templatePath, 'utf-8');
+    const templatePath = path.join(__dirname, '../index.html');
+    console.log(`Reading template file: ${templatePath}`);
+    const html = fs.readFileSync(templatePath, 'utf-8');
+    console.log('Template file read successfully.');
 
-    // Inject the rendered HTML and potentially other things (like initial state)
-    const html = template.replace(`<!--vue-ssr-app-->`, appHtml);
+    const finalHtml = html
+      .replace('<!--ssr-outlet-->', appContent)
+      .replace('</head>', '<link rel="stylesheet" href="/client-bundle.css"></head>')
+      .replace('</body>', '<script src="/client-bundle.js"></script></body>');
+
+    console.log('Sending final HTML.');
     res.setHeader('Content-Type', 'text/html');
-    res.status(200).send(html);
-  } catch (e) {
-    console.error('SSR Error:', e);
-    res.status(500).send('Internal Server Error');
+    res.send(finalHtml);
+  } catch (error) {
+    console.error(`SSR Error for path ${req.path}:`, error);
+    res.status(500).send('Server error during rendering');
   }
 });
 
-// Catch-all route for the main App (optional, adjust as needed)
-// server.get('*', async (req, res) => {
-//   try {
-//     const appHtml = await renderVueComponent(App); // No props for main app shell
-//     const templatePath = path.resolve(__dirname, '../index.html');
-//     let template = fs.readFileSync(templatePath, 'utf-8');
-//     const html = template.replace(`<!--vue-ssr-app-->`, appHtml);
-//     res.setHeader('Content-Type', 'text/html');
-//     res.status(200).send(html);
-//   } catch (e) {
-//     console.error('SSR Error:', e);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+  console.log(`Server listening on http://localhost:${port}`);
+});
 
-// Export the server instance for Vercel
 export default server;
-
-// Optional: Add local listener if not running on Vercel
-// if (process.env.NODE_ENV !== 'production') {
-//   const port = process.env.PORT || 3000;
-//   server.listen(port, () => {
-//     console.log(`Server listening on http://localhost:${port}`);
-//   });
-// }
