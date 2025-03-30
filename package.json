@@ -5,10 +5,11 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "npm run build && node server.js",
+    "dev": "node scripts/dev.js",
+    "build:client": "rollup -c --environment CLIENT,NODE_ENV:production",
+    "build:server": "rollup -c --environment SERVER,NODE_ENV:production",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "rollup -c rollup.config.js --environment CLIENT",
-    "build:server": "rollup -c rollup.config.js --environment SERVER",
+    "preview": "serve dist",
     "start": "node server.js"
   },
   "keywords": [

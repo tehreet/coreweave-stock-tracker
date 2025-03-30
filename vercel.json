@@ -3,24 +3,19 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/static-build", 
+      "use": "@vercel/static-build",
       "config": { "distDir": "dist" } 
     },
     {
-      "src": "server.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "dist/server-bundle.js", 
-          "index.html"             
-        ]
-      }
+      "src": "dist/server-bundle.js", 
+      "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/client-bundle.js", "dest": "/dist/client-bundle.js" },
-    { "src": "/client-bundle.css", "dest": "/dist/client-bundle.css" },
-    { "src": "/assets/(.*)", "dest": "/dist/assets/$1" },
-    { "src": "/(.*)", "dest": "/server.js" }
+    { "src": "/client-bundle.js", "dest": "/client-bundle.js" },
+    { "src": "/client-bundle.css", "dest": "/client-bundle.css" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "handle": "filesystem" }, 
+    { "src": "/(.*)", "dest": "/dist/server-bundle.js" }
   ]
 }
